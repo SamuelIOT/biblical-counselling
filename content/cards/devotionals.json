@@ -1,0 +1,29 @@
+{
+  "plans": [
+    {
+      "id": "peace-in-pressure-3d",
+      "title": "Peace in Pressure (3 days)",
+      "topic": "anxiety",
+      "days": [
+        {
+          "day": 1,
+          "verse": "Philippians 4:6-7 (WEB)",
+          "reading": "Pray specifics; add thanksgiving to each request.",
+          "practice": "Write 3 worries → pray them → thank God for 3 graces."
+        },
+        {
+          "day": 2,
+          "verse": "1 Peter 5:7 (WEB)",
+          "reading": "God cares for you; cast cares repeatedly.",
+          "practice": "Breath prayer: ‘I cast my cares on You; You care for me.’"
+        },
+        {
+          "day": 3,
+          "verse": "Matthew 6:34 (WEB)",
+          "reading": "Grace for today is enough.",
+          "practice": "Plan only today’s steps; postpone tomorrow’s tasks."
+        }
+      ]
+    }
+  ]
+}

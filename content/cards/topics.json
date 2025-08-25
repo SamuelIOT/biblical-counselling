@@ -1,0 +1,237 @@
+{
+  "anxiety": [
+    "anxious",
+    "anxiety",
+    "stress",
+    "panic",
+    "exam",
+    "pressure",
+    "worry"
+  ],
+  "loneliness": [
+    "alone",
+    "lonely",
+    "isolated",
+    "left out",
+    "no friends"
+  ],
+  "forgiveness": [
+    "forgive",
+    "resentment",
+    "bitterness",
+    "hurt",
+    "offense",
+    "anger"
+  ],
+  "purpose": [
+    "purpose",
+    "calling",
+    "future",
+    "direction",
+    "will of God"
+  ],
+  "temptation": [
+    "temptation",
+    "sin",
+    "struggle",
+    "lust",
+    "addiction"
+  ],
+  "guilt": [
+    "guilt",
+    "guilty",
+    "condemnation",
+    "regret",
+    "failure"
+  ],
+  "shame": [
+    "shame",
+    "ashamed",
+    "disgrace",
+    "unworthy"
+  ],
+  "anger": [
+    "angry",
+    "anger",
+    "rage",
+    "irritated",
+    "mad"
+  ],
+  "envy": [
+    "envy",
+    "jealous",
+    "jealousy",
+    "covet"
+  ],
+  "comparison": [
+    "compare",
+    "comparison",
+    "me vs",
+    "better than",
+    "worse than"
+  ],
+  "pride": [
+    "pride",
+    "proud",
+    "haughty",
+    "boast"
+  ],
+  "humility": [
+    "humble",
+    "humility",
+    "meek"
+  ],
+  "gratitude": [
+    "thanks",
+    "thankful",
+    "gratitude",
+    "praise"
+  ],
+  "grief": [
+    "grief",
+    "grieving",
+    "mourning"
+  ],
+  "loss": [
+    "loss",
+    "lost",
+    "passed away",
+    "death"
+  ],
+  "depression_support": [
+    "depressed",
+    "depression",
+    "down",
+    "hopeless",
+    "low"
+  ],
+  "fear": [
+    "fear",
+    "afraid",
+    "scared",
+    "terrified"
+  ],
+  "decision_making": [
+    "decision",
+    "choose",
+    "choice",
+    "discern"
+  ],
+  "calling": [
+    "calling",
+    "vocation",
+    "purpose",
+    "mission"
+  ],
+  "study_stress": [
+    "study",
+    "exam",
+    "test",
+    "assignment",
+    "deadline",
+    "school stress",
+    "time management"
+  ],
+  "time_management": [
+    "time",
+    "schedule",
+    "busy",
+    "overwhelmed",
+    "priorities"
+  ],
+  "relationships": [
+    "relationship",
+    "community",
+    "people",
+    "love one another"
+  ],
+  "friendship": [
+    "friend",
+    "friends",
+    "friendship"
+  ],
+  "biblical_dating": [
+    "dating",
+    "boyfriend",
+    "girlfriend",
+    "courtship"
+  ],
+  "marriage": [
+    "marriage",
+    "husband",
+    "wife",
+    "spouse"
+  ],
+  "conflict_resolution": [
+    "conflict",
+    "argument",
+    "fight",
+    "disagreement",
+    "peacemaking"
+  ],
+  "reconciliation": [
+    "reconcile",
+    "reconciliation",
+    "make peace",
+    "restore relationship",
+    "apology"
+  ],
+  "purity": [
+    "pure",
+    "purity",
+    "lust",
+    "sexual",
+    "flee"
+  ],
+  "integrity": [
+    "integrity",
+    "honest",
+    "upright",
+    "blameless"
+  ],
+  "evangelism_fear": [
+    "evangelize",
+    "share gospel",
+    "witness",
+    "fear of sharing"
+  ],
+  "spiritual_dryness": [
+    "dry",
+    "spiritually dry",
+    "no desire",
+    "cold heart"
+  ],
+  "prayer_habits": [
+    "prayer",
+    "pray",
+    "devotional",
+    "quiet time",
+    "discipline",
+    "habit"
+  ],
+  "confession": [
+    "confess",
+    "confession",
+    "repent",
+    "repentance"
+  ],
+  "faith": [
+    "faith",
+    "believe",
+    "trust",
+    "doubt"
+  ],
+  "reflection_word_of_God": [
+    "word",
+    "scripture",
+    "bible study",
+    "meditate",
+    "meditation"
+  ],
+  "assurance": [
+    "assurance",
+    "secure",
+    "salvation",
+    "saved"
+  ]
+}
