@@ -24,9 +24,9 @@ export async function POST(req: NextRequest) {
     if (OFFLINE) {
       const text =
         `Assistant: (offline mode)\n` +
-        `Here’s a brief, Bible-first response to: "${message}"\n\n` +
+        `Here's a brief, Bible-first response to: "${message}"\n\n` +
         `• Consider reading Psalm 23 and Matthew 11:28–30 today.\n` +
-        `• Pray: “Lord, give me rest in You and guide my steps.”\n` +
+        `• Pray: "Lord, give me rest in You and guide my steps."\n` +
         `• Take one step: write down one promise from Scripture and keep it with you.`
       return new Response(text, {
         headers: {
