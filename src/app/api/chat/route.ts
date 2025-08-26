@@ -1,53 +1,60 @@
 import { NextRequest } from 'next/server'
-import { streamText } from 'ai'
-import { openai } from '@ai-sdk/openai'
+import { chatStream, llmEnabled } from '@/lib/llm'
+import { hasActiveSubscription, readStripeCustomerIdFromCookie } from '@/lib/subscription'
+import { searchCards } from '@/lib/content'
 
-export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const FREE_MODE = process.env.SUBSCRIPTION_FREE_MODE === 'on'
-const OFFLINE = process.env.LLM_OFFLINE === 'on'
-const MODEL_NAME = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+function offlineReply(message: string, verses: string[]): string {
+  const refs = verses.length ? `Scriptures: ${verses.join(' | ')}` : 'Scriptures: (add more cards in /content/cards)'
+  return [
+    'AI (offline mode)',
+    '',
+    refs,
+    '',
+    `You said: "${message}"`,
+    '',
+    'Encouragement: Bring this to the Lord in prayer. Meditate on the verses above and take one small step of obedience today.',
+  ].join('\n')
+}
 
 export async function POST(req: NextRequest) {
+  const isFree = process.env.FREE_TIER === 'on'
+  let ok = isFree
+  if (!ok) {
+    const cust = readStripeCustomerIdFromCookie()
+    try { ok = await hasActiveSubscription(cust) } catch { ok = false }
+  }
+  if (!ok) return new Response('Subscription required. Visit /pricing.', { status: 402 })
+
+  const { message } = await req.json()
+  const cards = searchCards(String(message||'').slice(0, 200), 3)
+  const versesOnly = cards.flatMap(c => c.verses || [])
+
+  if (!llmEnabled()) {
+    const text = offlineReply(String(message||''), versesOnly)
+    return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
+  }
+
+  const system = `You are a friendly Christian counselling assistant. Always ground your guidance in Scripture with sensitivity.`
+  const ctx = cards.map(c => `- ${c.title}\nVerses: ${(c.verses||[]).join(' ')}\nNotes: ${c.body}`).join('\n\n')
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: `User message: ${message}\n\nContext cards (top matches):\n${ctx}` },
+  ] as const
+
   try {
-    const { message } = await req.json()
-    if (!message || typeof message !== 'string') {
-      return new Response('Bad request: missing "message"', { status: 400 })
-    }
-
-    if (!FREE_MODE) {
-      // TODO: when Stripe is ready, enforce here (402 if not active)
-      // return new Response('Subscription required. Visit /pricing.', { status: 402 })
-    }
-
-    if (OFFLINE) {
-      const text =
-        `Assistant: (offline mode)\n` +
-        `Here's a brief, Bible-first response to: "${message}"\n\n` +
-        `• Consider reading Psalm 23 and Matthew 11:28–30 today.\n` +
-        `• Pray: "Lord, give me rest in You and guide my steps."\n` +
-        `• Take one step: write down one promise from Scripture and keep it with you.`
-      return new Response(text, {
-        headers: {
-          'content-type': 'text/plain; charset=utf-8',
-          'x-free-mode': String(FREE_MODE),
-          'x-model': MODEL_NAME,
-        },
-      })
-    }
-
-    const result = await streamText({
-      model: openai(MODEL_NAME),
-      messages: [{ role: 'user', content: message }],
+    const stream = chatStream(messages as any)
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of stream) controller.enqueue(encoder.encode(chunk))
+        controller.close()
+      }
     })
-
-    const res = result.toDataStreamResponse()
-    res.headers.set('x-free-mode', String(FREE_MODE))
-    res.headers.set('x-model', MODEL_NAME)
-    return res
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    return new Response(`Server error: ${msg}`, { status: 500 })
+    return new Response(readable, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
+  } catch (e:any) {
+    const text = offlineReply(String(message||''), versesOnly)
+    return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
   }
 }

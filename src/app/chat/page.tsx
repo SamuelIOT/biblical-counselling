@@ -4,34 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import BackHome from '@/components/BackHome'
 import ChatTips from '@/components/ChatTips'
 
-function renderLog(text: string) {
-  const lines = text.split(/\n/)
-  return lines.map((line, i) => {
-    if (line.startsWith('You:')) {
-      return (
-        <p key={i} className="mb-1">
-          <strong>You:</strong>
-          {line.slice(4)}
-        </p>
-      )
-    }
-    if (line.startsWith('Assistant:')) {
-      return (
-        <p key={i} className="mb-1">
-          <strong>Assistant:</strong>
-          {line.slice(10)}
-        </p>
-      )
-    }
-    if (line.trim() === '') return <div key={i} className="h-2" />
-    return (
-      <p key={i} className="mb-1">
-        {line}
-      </p>
-    )
-  })
-}
-
 export default function ChatPage() {
   const [input, setInput] = useState('')
   const [log, setLog] = useState<string>('')
@@ -40,9 +12,7 @@ export default function ChatPage() {
   // abort any in-flight request when unmounting
   useEffect(() => {
     return () => {
-      try {
-        controllerRef.current?.abort()
-      } catch {}
+      try { controllerRef.current?.abort() } catch {}
     }
   }, [])
 
@@ -50,8 +20,10 @@ export default function ChatPage() {
     const c = controllerRef.current
     if (!c) return
     try {
-      // call without a reason to keep TS/lib.dom happy across environments
-      c.abort()
+      // give a reason for debugging; some environments throw if unhandled
+      // We catch it regardless.
+      // @ts-expect-error reason is allowed in newer DOM, ignored otherwise
+      c.abort('replaced-by-new-request')
     } catch {
       /* ignore AbortError */
     } finally {
@@ -75,9 +47,7 @@ export default function ChatPage() {
 
       if (!res.ok || !res.body) {
         let t = 'Request failed'
-        try {
-          t = await res.text()
-        } catch {}
+        try { t = await res.text() } catch {}
         setLog((p) => p + `\n\n⚠️ ${t}`)
         return
       }
@@ -93,7 +63,7 @@ export default function ChatPage() {
         setLog((p) => p + decoder.decode(value))
       }
     } catch (err: unknown) {
-      // swallow aborts; show only real errors
+      // Swallow aborts cleanly; show only real errors
       if (err instanceof DOMException && err.name === 'AbortError') {
         // optional: setLog((p) => p + '\n\n⏹️ (previous request cancelled)')
       } else {
@@ -111,6 +81,37 @@ export default function ChatPage() {
     }
   }
 
+	function renderLog(text: string) {
+		const lines = text.split(/\n/);
+		return lines.map((line, i) => {
+			if (line.startsWith('You:')) {
+				return (
+				<p key={i} className="mb-1">
+					<strong>You:</strong>
+						{line.slice(4)}
+				</p>
+			);
+		}
+		if (line.startsWith('Assistant:')) {
+		return (
+			<p key={i} className="mb-1">
+				<strong>Assistant:</strong>
+          {line.slice(10)}
+        </p>
+      );
+    }
+    // keep blank lines as vertical space
+    if (line.trim() === '') return <div key={i} className="h-2" />;
+    return (
+      <p key={i} className="mb-1">
+        {line}
+      </p>
+    );
+  });
+}
+
+
+
   return (
     <div className="w-full -mx-4 px-4 py-10 bg-blue-700 text-white">
       <div className="mx-auto max-w-5xl flex min-h-[70vh] flex-col gap-4">
@@ -118,9 +119,10 @@ export default function ChatPage() {
         <h1 className="text-2xl font-bold">AI Assistant</h1>
 
         {/* Messages panel grows/shrinks with the page */}
-        <div className="rounded-2xl border border-white/20 bg-white/5 p-4 overflow-y-auto flex-1 min-h-[320px] text-sm">
-          {log ? renderLog(log) : 'Start a conversation...'}
-        </div>
+		<div className="rounded-2xl border border-white/20 bg-white/5 p-4 overflow-y-auto 		flex-1 min-h-[320px] text-sm">
+			{log ? renderLog(log) : 'Start a conversation...'}
+		</div>
+
 
         {/* Input row */}
         <div className="flex items-center gap-3">
