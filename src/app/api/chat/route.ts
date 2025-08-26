@@ -2,15 +2,11 @@ import { NextRequest } from 'next/server'
 import { streamText } from 'ai'
 import { openai } from '@ai-sdk/openai'
 
-export const dynamic = 'force-dynamic'   // no static caching
-export const runtime = 'nodejs'          // ensure Node runtime for streaming
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
-// Toggle free mode in Vercel envs until Stripe is ready
-//   SUBSCRIPTION_FREE_MODE=on  -> bypass subscription checks
 const FREE_MODE = process.env.SUBSCRIPTION_FREE_MODE === 'on'
 const OFFLINE = process.env.LLM_OFFLINE === 'on'
-
-// Choose the OpenAI model from env or fallback
 const MODEL_NAME = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 
 export async function POST(req: NextRequest) {
@@ -20,13 +16,11 @@ export async function POST(req: NextRequest) {
       return new Response('Bad request: missing "message"', { status: 400 })
     }
 
-    // Subscription gate (disabled while FREE_MODE is on)
     if (!FREE_MODE) {
-      // TODO: when Stripe is live, add your real check here and 402 if inactive
+      // TODO: when Stripe is ready, enforce here (402 if not active)
       // return new Response('Subscription required. Visit /pricing.', { status: 402 })
     }
 
-    // Offline/testing path still supported
     if (OFFLINE) {
       const text =
         `Assistant: (offline mode)\n` +
@@ -43,7 +37,6 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Live LLM streaming
     const result = await streamText({
       model: openai(MODEL_NAME),
       messages: [{ role: 'user', content: message }],
