@@ -4,3 +4,4 @@
 !.env.local.example
 node_modules
 .next
+.next
