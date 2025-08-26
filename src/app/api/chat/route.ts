@@ -1,16 +1,17 @@
 import { NextRequest } from 'next/server'
 import { streamText } from 'ai'
-import { model } from '@/lib/llm'
+import { openai } from '@ai-sdk/openai'
 
-// Ensure this route is always executed on-demand (no static caching)
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic'   // no static caching
+export const runtime = 'nodejs'          // ensure Node runtime for streaming
 
-// Toggle free mode with env var:
-//   SUBSCRIPTION_FREE_MODE=on  → bypass subscription checks
+// Toggle free mode in Vercel envs until Stripe is ready
+//   SUBSCRIPTION_FREE_MODE=on  -> bypass subscription checks
 const FREE_MODE = process.env.SUBSCRIPTION_FREE_MODE === 'on'
-
-// Optional: keep your offline toggle if you use it elsewhere
 const OFFLINE = process.env.LLM_OFFLINE === 'on'
+
+// Choose the OpenAI model from env or fallback
+const MODEL_NAME = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,14 +20,13 @@ export async function POST(req: NextRequest) {
       return new Response('Bad request: missing "message"', { status: 400 })
     }
 
-    // --- subscription gate (bypassed when FREE_MODE is on) ---
+    // Subscription gate (disabled while FREE_MODE is on)
     if (!FREE_MODE) {
-      // TODO: replace with your real auth/subscription check (cookie/db/user)
-      // If not active, block:
+      // TODO: when Stripe is live, add your real check here and 402 if inactive
       // return new Response('Subscription required. Visit /pricing.', { status: 402 })
     }
 
-    // --- optional: ultra-simple offline behavior (keeps existing UI flowing) ---
+    // Offline/testing path still supported
     if (OFFLINE) {
       const text =
         `Assistant: (offline mode)\n` +
@@ -35,24 +35,26 @@ export async function POST(req: NextRequest) {
         `• Pray: “Lord, give me rest in You and guide my steps.”\n` +
         `• Take one step: write down one promise from Scripture and keep it with you.`
       return new Response(text, {
-        headers: { 'content-type': 'text/plain; charset=utf-8', 'x-free-mode': String(FREE_MODE) },
+        headers: {
+          'content-type': 'text/plain; charset=utf-8',
+          'x-free-mode': String(FREE_MODE),
+          'x-model': MODEL_NAME,
+        },
       })
     }
 
-    // --- live LLM streaming via Vercel AI SDK ---
+    // Live LLM streaming
     const result = await streamText({
-      model,
+      model: openai(MODEL_NAME),
       messages: [{ role: 'user', content: message }],
     })
 
-    // Add a small header so you can confirm free mode in logs if desired
     const res = result.toDataStreamResponse()
     res.headers.set('x-free-mode', String(FREE_MODE))
+    res.headers.set('x-model', MODEL_NAME)
     return res
   } catch (err: unknown) {
-    // Graceful error message (don’t leak internals)
-    const msg =
-      err instanceof Error ? err.message : typeof err === 'string' ? err : 'Unknown error'
+    const msg = err instanceof Error ? err.message : String(err)
     return new Response(`Server error: ${msg}`, { status: 500 })
   }
 }
